@@ -5,13 +5,15 @@ import asyncio
 
 async def main():
     controller = Controller()
-    controllers, arduino = await asyncio.gather(init_motors(), init_servos())
+    controllers = await init_motors()
+    arduino = await init_servos()
 
     while True:
-        motor_update_promise = update_motors(controller, controllers)
-        servo_update_promise = update_servos(controller, arduino)
+        await update_motors(controller, controllers)
+        await update_servos(controller, arduino)
+        # servo_update_promise = update_servos(controller, arduino)
 
-        asyncio.gather(motor_update_promise, servo_update_promise)
+        # asyncio.gather(motor_update_promise)
 
 if __name__ == '__main__':
     asyncio.run(main())

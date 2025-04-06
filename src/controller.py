@@ -29,7 +29,7 @@ class Controller(object):
 
     def __init__(self):
         self.activation_index: int = 0
-        self.state: ControllerState = ControllerState.DISABLED
+        self.state: ControllerState = ControllerState.ENABLED
         self.velocity: float = 0.0
         self.max_speed_index: int = 0
         self.angle: float = math.nan
@@ -116,12 +116,13 @@ class Controller(object):
            
     def update_state(self):
         # Deactivate
-        if self.Start == 1 and self.state == ControllerState.ENABLED:
-            self.velocity = 0
+        self.state = ControllerState.ENABLED
+        if False and self.state == ControllerState.ENABLED:
+            self.velocity = 0.0
             self.angle = 0
             self.state = ControllerState.DISABLED
             return
-        if self.state == ControllerState.DISABLED and sum([self.A, self.B, self.X, self.Y] == 1):
+        if self.state == ControllerState.DISABLED:
             # Activate
             recent_action = Actions.NONE # Get Action
             if self.A == 1:
@@ -145,9 +146,9 @@ class Controller(object):
 
     def update_velocity(self):
         # Equation https://www.desmos.com/calculator/721p4tkigr
-
         if abs(self.LeftJoystickY) < DEADZONE:
             self.velocity = 0.0
+            print('[update_velocity] deadzone')
             return
         # Keeps joystick in 'square' zone
         sign = abs(self.LeftJoystickY)/self.LeftJoystickY
@@ -166,6 +167,8 @@ class Controller(object):
         self.angle = max(-1, min(1, vel))
 
     def update_max_speed(self):
+        self.max_speed_index = 4
+        return
         if self.LeftDPad == 1:
             self.max_speed_index = 1
         elif self.DownDPad == 1:
