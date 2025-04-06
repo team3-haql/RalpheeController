@@ -19,7 +19,7 @@ SIN_PI_OVER_4 = math.sin(math.pi/4)
 DEADZONE = 0.1
 DEADZONE_INV = 1-DEADZONE
 
-MAX_SPEEDS = [0, 0.5, 1, 2, 4]
+MAX_SPEEDS = [0, 0.5, 1, 2, 0.5]
 
 # Used as reference
 # https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
@@ -168,12 +168,15 @@ class Controller(object):
 
     def update_max_speed(self):
         self.max_speed_index = 4
-        return
         if self.LeftDPad == 1:
-            self.max_speed_index = 1
+            print('LEFT')
+            # self.max_speed_index = 1
         elif self.DownDPad == 1:
-            self.max_speed_index = 2
+            print('DOWN')
+            # self.max_speed_index = 2
         elif self.RightDPad == 1:
-            self.max_speed_index = 3
+            print('RIGHT')
+            # self.max_speed_index = 3
         elif self.UpDPad == 1:
-            self.max_speed_index = 4
+            print('UP')
+            # self.max_speed_index = 4
