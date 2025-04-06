@@ -19,6 +19,8 @@ SIN_PI_OVER_4 = math.sin(math.pi/4)
 DEADZONE = 0.1
 DEADZONE_INV = 1-DEADZONE
 
+MAX_SPEEDS = [0, 0.5, 1, 2, 4]
+
 # Used as reference
 # https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
 class Controller(object):
@@ -29,6 +31,7 @@ class Controller(object):
         self.activation_index: int = 0
         self.state: ControllerState = ControllerState.DISABLED
         self.velocity: float = 0.0
+        self.max_speed_index: int = 0
         self.angle: float = math.nan
 
         self.LeftJoystickY = 0
@@ -105,9 +108,11 @@ class Controller(object):
             if self.state == ControllerState.ENABLED:
                 self.update_velocity()
                 self.update_angle()
+                self.update_max_speed()
             else:
                 self.velocity = 0.0
                 self.angle = math.nan
+                self.max_speed_index = 0
            
     def update_state(self):
         # Deactivate
@@ -159,3 +164,13 @@ class Controller(object):
         sign = abs(self.LeftJoystickX)/self.LeftJoystickX
         vel = (self.LeftJoystickX - DEADZONE*sign) / (SIN_PI_OVER_4*DEADZONE_INV)
         self.angle = max(-1, min(1, vel))
+
+    def update_max_speed(self):
+        if self.LeftDPad == 1:
+            self.max_speed_index = 1
+        elif self.DownDPad == 1:
+            self.max_speed_index = 2
+        elif self.RightDPad == 1:
+            self.max_speed_index = 3
+        elif self.UpDPad == 1:
+            self.max_speed_index = 4

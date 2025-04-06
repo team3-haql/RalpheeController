@@ -22,5 +22,11 @@ Inorder to enable the controller you need to enter the sequence:
 ```
     A -> X -> Y -> B
 ```
-Left Joystick controls the servos and the motors.<br>
+After this sequence us the D-Pad to select the movements speed:
+- Left D-Pad is a max speed of 0.5
+- Down D-Pad is a max speed of 1
+- Right D-Pad is a max speed of 2
+- Up D-Pad is a max speed of 4
+Max Speed can be changed at anytime.<br><br>
+Left Joystick controls the servos and the motors.<br><br>
 To disable the controller press the "Start" button on the controller.
