@@ -8,7 +8,7 @@ include = ["controller.py", "motor_control.py", "servo_control.py"]
 namespaces = false
 
 [project]
-name = "Ralphee_Controller"
+name = "ralphee_controller"
 version = "0.0.1"
 dependencies = [
   "moteus",

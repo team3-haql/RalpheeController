@@ -1,23 +1,20 @@
 import serial
 import time
-from controller import controller
+from controller import Controller
 
-async def init_servos():
-    print('arduino init')
+async def init_servos() -> serial.Serial:
+    print('[init_servos] create arduino object')
     arduino = serial.Serial('/dev/ttyACM0', 9600)
-
+    print('[init_servos] setup serial port for arduino')
     arduino.setDTR(False)
-    time.sleep(0.2)
+    time.sleep(0.1) # Initially set to 1
     arduino.flushInput()
     arduino.setDTR(True)
-    time.sleep(0.2)
-
-    print('arduino ready!')
+    time.sleep(0.1) # Initially set to 2
+    print('[init_servos] arduino ready!')
     return arduino
 
-async def update_servos(arduino):
-    angle = controller.RightJoystickX
-    if abs(controller.RightJoystickX) < 0.1:
-        angle = 0
+async def update_servos(controller: Controller, arduino: serial.Serial):
+    angle = controller.angle
     arduino.write((str(angle) + '\n').encode())
-    print(f't: {angle}')
+    print(f'[update_servos] t: {angle}')

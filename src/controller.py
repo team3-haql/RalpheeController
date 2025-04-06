@@ -1,14 +1,33 @@
 from inputs import get_gamepad
 import threading
 import math
+from enum import IntEnum
 
-CONTROLLER_COUNT = 1
+class ControllerState(IntEnum):
+    DISABLED = 0
+    ENABLED  = 1
+
+class Actions(IntEnum):
+    NONE = 0
+    A = 1
+    B = 2
+    X = 3
+    Y = 4
+
+ACTIVATION_CODE = [Actions.A, Actions.X, Actions.Y, Actions.B]
+SIN_PI_OVER_4 = math.sin(math.pi/4)
+DEADZONE = 0.1
+DEADZONE_INV = 1-DEADZONE
 
 class Controller(object):
     MAX_TRIG_VAL = math.pow(2, 8)
     MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self):
+        self.activation_index: int = 0
+        self.state: ControllerState = ControllerState.DISABLED
+        self.velocity: float = 0.0
+        self.angle: float = 0.0
 
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
@@ -80,4 +99,61 @@ class Controller(object):
                 elif event.code == 'BTN_TRIGGER_HAPPY4':
                     self.DownDPad = event.state
 
-controller = Controller()
+            self.update_state()
+            if self.state == ControllerState.ENABLED:
+                self.update_velocity()
+                self.update_angle()
+            else:
+                self.velocity = 0.0
+                self.angle = 0.0
+           
+    def update_state(self):
+        # Deactivate
+        if self.Start == 1 and self.state == ControllerState.ENABLED:
+            self.velocity = 0
+            self.angle = 0
+            self.state = ControllerState.DISABLED
+            return
+        if self.state == ControllerState.DISABLED and sum([self.A, self.B, self.X, self.Y] == 1):
+            # Activate
+            recent_action = Actions.NONE # Get Action
+            if self.A == 1:
+                recent_action = Actions.A
+            elif self.B == 1:
+                recent_action = Actions.B
+            elif self.X == 1:
+                recent_action = Actions.X
+            elif self.Y == 1:
+                recent_action = Actions.Y
+
+            if recent_action == Actions.NONE: # No Input
+                return
+            if recent_action == ACTIVATION_CODE[self.activation_index]: # Valid
+                self.activation_index += 1
+                if self.activation_index == len(ACTIVATION_CODE):
+                    self.state = ControllerState.ENABLED
+                    self.activation_index = 0
+            else: # Invalid
+                self.activation_index = 0
+
+    def update_velocity(self):
+        # Equation https://www.desmos.com/calculator/721p4tkigr
+
+        if abs(self.LeftJoystickY) < DEADZONE:
+            self.velocity = 0.0
+            return
+        # Keeps joystick in 'square' zone
+        sign = abs(self.LeftJoystickY)/self.LeftJoystickY
+        vel = (self.LeftJoystickY-DEADZONE*sign) / (SIN_PI_OVER_4*DEADZONE_INV)
+        self.velocity = max(-1, min(1, vel))
+
+    def update_angle(self):
+        # Equation https://www.desmos.com/calculator/721p4tkigr
+        
+        if abs(self.LeftJoystickX) < DEADZONE:
+            self.angle = 0.0
+            return
+        # Keeps joystick in 'square' zone
+        sign = abs(self.LeftJoystickX)/self.LeftJoystickX
+        vel = (self.LeftJoystickX - DEADZONE*sign) / (SIN_PI_OVER_4*DEADZONE_INV)
+        self.angle = max(-1, min(1, vel))
