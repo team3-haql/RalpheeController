@@ -18,7 +18,7 @@ Run controller using:
 ```
 
 ## Controls
-Inorder to start the controller you need to enter a safety sequence:
+Inorder to enable the controller you need to enter the sequence:
 ```
     A -> X -> Y -> B
 ```
