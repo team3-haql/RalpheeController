@@ -1,12 +1,7 @@
-import serial
-import time
 from inputs import get_gamepad
-import math
 import threading
-import moteus
-import asyncio
+import math
 
-MAX_SPEED = 2
 CONTROLLER_COUNT = 1
 
 class Controller(object):
@@ -86,64 +81,3 @@ class Controller(object):
                     self.DownDPad = event.state
 
 controller = Controller()
-
-async def moteus_controller(): # return the buttons/triggers that you care about in this methode
-    print('Init Controller')
-
-    qr = moteus.QueryResolution()
-    qr.trajectory_complete = moteus.INT8
-
-    SERVO_IDS = [1]
-
-    controllers = []
-    for id in SERVO_IDS:
-        controllers.append(moteus.Controller(id, query_resolution=qr))
-
-    print('set stop')
-
-    for c in controllers:
-        await c.set_stop()
-
-    print('ready!')
-
-    while True:
-        velocity = controller.LeftJoystickY*MAX_SPEED
-        if abs(controller.LeftJoystickY) < 0.1:
-            velocity = 0
-        for c in controllers:
-            await c.set_position(position=math.nan, velocity=velocity, query=True)
-        # print(f'v: {velocity}')
-
-        if controller.B == 1:
-            break
-        
-        for c in controllers:
-            await c.flush_transport()
-        await asyncio.sleep(0.02)
-
-def arduino():
-    # print('arduino init')
-    arduino = serial.Serial('/dev/ttyACM0', 9600)
-
-    arduino.setDTR(False)
-    time.sleep(1)
-    arduino.flushInput()
-    arduino.setDTR(True)
-    time.sleep(2)
-
-    while True:
-        angle = controller.RightJoystickX
-        if abs(controller.RightJoystickX) < 0.1:
-            angle = 0
-        arduino.write((str(angle) + '\n').encode())
-        # print(f't: {angle}')
-
-        if controller.B == 1:
-            break
-
-if __name__ == '__main__':
-    # joy.arduino()
-    # arduino_thread = threading.Thread(target=arduino)
-    # arduino_thread.daemon = True
-    # arduino_thread.start()
-    asyncio.run(moteus_controller())

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["controller.py", "motor_control.py", "servo_control.py"]
+namespaces = false
+
+[project]
+name = "Ralphee_Controller"
+version = "0.0.1"
+dependencies = [
+  "moteus",
+  "serial",
+  "inputs",
+  "django>2.0; os_name == 'nt'",
+]
