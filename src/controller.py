@@ -27,7 +27,7 @@ class Controller(object):
         self.activation_index: int = 0
         self.state: ControllerState = ControllerState.DISABLED
         self.velocity: float = 0.0
-        self.angle: float = 0.0
+        self.angle: float = math.nan
 
         self.LeftJoystickY = 0
         self.LeftJoystickX = 0
@@ -105,7 +105,7 @@ class Controller(object):
                 self.update_angle()
             else:
                 self.velocity = 0.0
-                self.angle = 0.0
+                self.angle = math.nan
            
     def update_state(self):
         # Deactivate
