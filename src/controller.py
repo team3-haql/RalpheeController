@@ -19,6 +19,8 @@ SIN_PI_OVER_4 = math.sin(math.pi/4)
 DEADZONE = 0.1
 DEADZONE_INV = 1-DEADZONE
 
+# Used as reference
+# https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
 class Controller(object):
     MAX_TRIG_VAL = math.pow(2, 8)
     MAX_JOY_VAL = math.pow(2, 15)
