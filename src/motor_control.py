@@ -6,7 +6,7 @@ import math
 # Make sure to run the following commands on Jetson Orin Nano so camfd works properly:
 # https://github.com/mjbots/fdcanusb/blob/master/70-fdcanusb.rules
 
-SERVO_IDS = [3]
+SERVO_IDS = [0,1,2]
 
 async def init_motors() -> list[moteus.Controller]:
     print('[init_motors] create controller objects')

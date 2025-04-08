@@ -19,7 +19,7 @@ SIN_PI_OVER_4 = math.sin(math.pi/4)
 DEADZONE = 0.1
 DEADZONE_INV = 1-DEADZONE
 
-MAX_SPEEDS = [0, 0.5, 1, 2, 0.5]
+MAX_SPEEDS = [0, 0.5, 1, 2, 2]
 
 # Used as reference
 # https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
@@ -148,7 +148,6 @@ class Controller(object):
         # Equation https://www.desmos.com/calculator/721p4tkigr
         if abs(self.LeftJoystickY) < DEADZONE:
             self.velocity = 0.0
-            print('[update_velocity] deadzone')
             return
         # Keeps joystick in 'square' zone
         sign = abs(self.LeftJoystickY)/self.LeftJoystickY
