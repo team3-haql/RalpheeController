@@ -6,11 +6,11 @@ import asyncio
 async def main():
     controller = Controller()
     controllers = await init_motors()
-    arduino = await init_servos()
+    # arduino = await init_servos()
 
     while True:
         await update_motors(controller, controllers)
-        await update_servos(controller, arduino)
+        # await update_servos(controller, arduino)
         # servo_update_promise = update_servos(controller, arduino)
 
         # asyncio.gather(motor_update_promise)

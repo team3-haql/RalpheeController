@@ -16,7 +16,7 @@ class Actions(IntEnum):
 
 ACTIVATION_CODE = [Actions.A, Actions.X, Actions.Y, Actions.B]
 SIN_PI_OVER_4 = math.sin(math.pi/4)
-DEADZONE = 0.1
+DEADZONE = 0.05
 DEADZONE_INV = 1-DEADZONE
 
 MAX_SPEEDS = [0, 0.5, 1, 2, 2]
