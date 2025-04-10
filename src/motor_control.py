@@ -1,8 +1,8 @@
 import moteus
 from controller import Controller, MAX_SPEEDS
-import asyncio
 import time
 import math
+import usb
 
 # Make sure to run the following commands on Jetson Orin Nano so camfd works properly:
 # https://github.com/mjbots/fdcanusb/blob/master/70-fdcanusb.rules
@@ -11,6 +11,15 @@ LEFT_SERVO_IDS = [3, 4, 5]
 RIGHT_SERVO_IDS = [0, 1, 2]
 
 async def init_motors() -> list[list[moteus.Controller]]:
+    print("[init_motors] resetting device file...")
+
+    dev = usb.core.find(idVendor=0x0483, idProduct=0x5740)
+    if dev is None:
+        raise ValueError('Device not found')
+
+    dev.reset()
+
+    print("[init_motors] reset usb!")
     print('[init_motors] create controller objects')
     qr = moteus.QueryResolution()
     qr.trajectory_complete = moteus.INT8

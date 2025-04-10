@@ -15,4 +15,5 @@ dependencies = [
   "pyserial",
   "inputs",
   "django>2.0; os_name == 'nt'",
+  "usb"
 ]
