@@ -21,5 +21,5 @@ async def init_servos() -> serial.Serial:
 
 async def update_servos(controller: Controller, arduino: serial.Serial):
     angle = controller.angle
-    arduino.write((str(angle) + '\n').encode())
+    arduino.write((str(angle) + '\r').encode())
     print(f'[update_servos] t: {angle}')

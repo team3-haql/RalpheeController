@@ -2,6 +2,7 @@ from inputs import get_gamepad
 import threading
 import math
 from enum import IntEnum
+import time
 
 class ControllerState(IntEnum):
     DISABLED = 0
@@ -61,7 +62,13 @@ class Controller(object):
 
     def _monitor_controller(self):
         while True:
-            events = get_gamepad()
+            events = None
+            try:
+                events = get_gamepad()
+            except:
+                print('not connected!')
+                time.sleep(1)
+                continue
             for event in events:
                 if event.code == 'ABS_Y':
                     self.LeftJoystickY = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1

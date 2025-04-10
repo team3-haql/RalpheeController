@@ -9,7 +9,8 @@ async def main():
     # arduino = await init_servos()
 
     while True:
-        await update_motors(controller, controllers)
+        # await update_motors(controller, controllers)
+        print(controller.velocity)
         # await update_servos(controller, arduino)
         # servo_update_promise = update_servos(controller, arduino)
 
