@@ -49,7 +49,7 @@ async def init_motors() -> list[list[moteus.Controller]]:
     # Return groups
     return [left_controllers, right_controllers]
 
-async def update_motors(velocity: float, angle: float, controller_groups: list[list[moteus.Controller]]):
+async def update_motors(left_velocity: float, right_velocity: float, controller_groups: list[list[moteus.Controller]]):
     """
         Updates motor velocities.
         Args:
@@ -63,8 +63,7 @@ async def update_motors(velocity: float, angle: float, controller_groups: list[l
     coroutines = []
 
     # Gets the velocity for both sides.
-    left_velocity  =  velocity - abs(angle*velocity)
-    right_velocity = -velocity + abs(angle*velocity)
+
 
     LEFT_SIDE_INDEX  = 0
     RIGHT_SIDE_INDEX = 1
@@ -77,8 +76,6 @@ async def update_motors(velocity: float, angle: float, controller_groups: list[l
     for i, c in enumerate(controller_groups[RIGHT_SIDE_INDEX]):
         v = right_velocity
         coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=1.0))
-
-    print(f'[update_motors] v: {velocity}')
 
     # Await coroutines
     for coroutine in coroutines:

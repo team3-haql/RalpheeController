@@ -25,9 +25,11 @@ async def main():
     # arduino = await init_servos()
 
     while True:
-        radius: float = WHEEL_BASE/(math.tan(inverse_lerp_angle(controller.angle)) * (TRACK_WIDTH/2))
-        velocity: float = controller.velocity*MAX_SPEEDS[controller.max_speed_index]
-        await update_motors(velocity, radius, controllers)
+        velocity: float = controller.velocity
+        angle: float = controller.angle
+        left_velocity  = min(max( velocity + angle, -1), 1)*MAX_SPEEDS[controller.max_speed_index]
+        right_velocity = min(max(-velocity + angle, -1), 1)*MAX_SPEEDS[controller.max_speed_index]
+        await update_motors(left_velocity, right_velocity, controllers)
         # await update_servos(controller, arduino)
 
 if __name__ == '__main__':
