@@ -2,7 +2,7 @@ from inputs import get_gamepad, UnpluggedError
 import threading
 import math
 from enum import IntEnum
-import time
+import os
 
 class ControllerState(IntEnum):
     DISABLED = 0
@@ -65,9 +65,9 @@ class Controller(object):
             events = None
             try:
                 events = get_gamepad()
-            except UnpluggedError:
+            except:
                 print('not connected!')
-                time.sleep(1)
+                os._exit(-1)
                 continue
             for event in events:
                 if event.code == 'ABS_Y':
