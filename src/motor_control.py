@@ -1,18 +1,52 @@
 import moteus
-from controller import Controller, MAX_SPEEDS
 import time
 import math
 import usb
+import numpy as np
 
-# Make sure to run the following commands on Jetson Orin Nano so camfd works properly:
-# https://github.com/mjbots/fdcanusb/blob/master/70-fdcanusb.rules
+# Can bus id, bisit mjbots moteus repo for more info: https://github.com/mjbots/moteus
+# center motor id should be in center.
+LEFT_MOTOR_IDS  = [0, 5, 2]
+RIGHT_MOTOR_IDS = [1, 4, 3]
 
-LEFT_SERVO_IDS = [3, 4, 5]
-RIGHT_SERVO_IDS = [0, 1, 2]
+# [0] = Left Non Center
+# [1] = Left Center
+# [2] = Right Non Center
+# [3] = Right Center
+MOTOR_COORDS = np.array([[-0.3048,0.3556], [-0.3048,0.0],  # Left Side
+                         [ 0.3048,0.3556], [ 0.3048,0.0]]) # Right Side
+
+def get_motor_radiuses(radius: float) -> np.ndarray[float]:
+    """
+        Gets radius to each motor, used velocity calculation
+        Args:
+            radius:
+                Radius from center over rover to turn point
+        Return:
+            Array of radius to each motor
+    """
+    global MOTOR_COORDS
+
+    ROVER_CENTER = np.array([radius,0.0])
+    radiuses = np.empty(6, dtype=float)
+
+    for i, motor_coord in enumerate(MOTOR_COORDS):
+        p = ROVER_CENTER - motor_coord
+        sum_sq = np.dot(p, p)
+        radiuses[i] = np.sqrt(sum_sq)
+
+    return radiuses
 
 async def init_motors() -> list[list[moteus.Controller]]:
+    """
+        Initializes moteus controllers!
+        Return:
+            Groups of moteus controllers! Each group has a different velocity sent to it.
+    """
     print("[init_motors] resetting device file...")
 
+    # Reset fdcamusb device
+    # Without this step the program will get stuck at 'set_stop' on repeat runs.
     dev = usb.core.find(idVendor=0x0483, idProduct=0x5740)
     if dev is None:
         raise ValueError('Device not found')
@@ -23,28 +57,61 @@ async def init_motors() -> list[list[moteus.Controller]]:
     print('[init_motors] create controller objects')
     qr = moteus.QueryResolution()
     qr.trajectory_complete = moteus.INT8
+
+    # Create Motor Objects
     left_controllers = []
-    for id in LEFT_SERVO_IDS:
+    for id in LEFT_MOTOR_IDS:
         left_controllers.append(moteus.Controller(id, query_resolution=qr))
     right_controllers = []
-    for id in RIGHT_SERVO_IDS:
+    for id in RIGHT_MOTOR_IDS:
         right_controllers.append(moteus.Controller(id, query_resolution=qr))
+
+    # Reset motors incase of inpropper shutdown.
     print('[init_motors] set stop')
     for c in left_controllers:
         await c.set_stop()
     for c in right_controllers:
         await c.set_stop()
     print('[init_motors] ready!')
+
+    # Return groups
     return [left_controllers, right_controllers]
 
-async def update_motors(controller: Controller, controller_groups: list[list[moteus.Controller]]):
-    velocity = controller.velocity*MAX_SPEEDS[controller.max_speed_index]
-    # Set Velocity
+async def update_motors(velocity: float, radius: float, controller_groups: list[list[moteus.Controller]]):
+    """
+        Updates motor velocities.
+        Args:
+            velocity:
+                Speed that the rover itself will travel at.
+            radius:
+                length from turning point to center of body
+            controller_groups:
+                Controller groups to be set.
+    """
     coroutines = []
-    for c in controller_groups[0]:
-        coroutines.append(c.set_position(position=math.nan, velocity=velocity, query=True, watchdog_timeout=0.1))
-    for c in controller_groups[1]:
-        coroutines.append(c.set_position(position=math.nan, velocity=(-velocity), query=True, watchdog_timeout=0.1))
+
+    radiuses = get_motor_radiuses(radius) / radius
+
+    # Gets the velocity for both sides.
+    left_velocity         =  velocity*abs(radiuses[0])
+    left_center_velocity  =  velocity*abs(radiuses[1])
+    right_velocity        = -velocity*abs(radiuses[2])
+    right_center_velocity = -velocity*abs(radiuses[3])
+
+    LEFT_SIDE_INDEX  = 0
+    RIGHT_SIDE_INDEX = 1
+
+    # Start coroutines
+    for i, c in enumerate(controller_groups[LEFT_SIDE_INDEX]):
+        v = left_velocity if i != 1 else left_center_velocity
+        coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=1.0))
+
+    for i, c in enumerate(controller_groups[RIGHT_SIDE_INDEX]):
+        v = right_velocity if i != 1 else right_center_velocity
+        coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=1.0))
+
     print(f'[update_motors] v: {velocity}')
+
+    # Await coroutines
     for coroutine in coroutines:
         await coroutine
