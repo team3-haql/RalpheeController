@@ -42,9 +42,9 @@ async def update_motors(controller: Controller, controller_groups: list[list[mot
     # Set Velocity
     coroutines = []
     for c in controller_groups[0]:
-        coroutines.append(c.set_position(position=math.nan, velocity=velocity, query=True, watchdog_timeout=1.0))
+        coroutines.append(c.set_position(position=math.nan, velocity=velocity, query=True, watchdog_timeout=0.1))
     for c in controller_groups[1]:
-        coroutines.append(c.set_position(position=math.nan, velocity=(-velocity), query=True, watchdog_timeout=1.0))
+        coroutines.append(c.set_position(position=math.nan, velocity=(-velocity), query=True, watchdog_timeout=0.1))
     print(f'[update_motors] v: {velocity}')
     for coroutine in coroutines:
         await coroutine
