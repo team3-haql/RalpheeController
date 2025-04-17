@@ -1,4 +1,4 @@
-from inputs import get_gamepad
+from inputs import get_gamepad, UnpluggedError
 import threading
 import math
 from enum import IntEnum
@@ -65,7 +65,7 @@ class Controller(object):
             events = None
             try:
                 events = get_gamepad()
-            except:
+            except UnpluggedError:
                 print('not connected!')
                 time.sleep(1)
                 continue

@@ -5,9 +5,6 @@ from controller import Controller
 async def init_servos() -> serial.Serial:
     print('[init_servos] create arduino object')
     # Creates arduino object
-    # try:
-    #     arduino = serial.Serial('/dev/ttyACM0', 9600)
-    # except():
     arduino = serial.Serial('/dev/ttyACM1', 9600)
 
     print('[init_servos] setup serial port for arduino')
