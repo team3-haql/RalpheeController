@@ -22,7 +22,7 @@ SIN_PI_OVER_4 = math.sin(math.pi/4)
 DEADZONE = 0.05
 DEADZONE_INV = 1-DEADZONE
 
-MAX_SPEEDS = [0, 0.5, 1, 1, 1]
+MAX_SPEEDS = [0, 0.5, 0.5, 0.5, 0.5]
 
 # Used as reference
 # https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
@@ -71,6 +71,8 @@ class Controller(object):
                 print("An error occurred:", type(error).__name__) # An error occurred: NameError
                 print('not connected!')
                 importlib.reload(inputs)
+                self.velocity = 0
+                self.angle = 0
                 sleep(1)
                 continue
             for event in events:
