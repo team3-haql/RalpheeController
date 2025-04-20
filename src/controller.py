@@ -6,7 +6,7 @@ import os
 from time import sleep
 import importlib
 
-DEADZONE = 0.05
+DEADZONE = 0.025
 DEADZONE_INV = 1-DEADZONE
 
 MAX_SPEED = 0.5
