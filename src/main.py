@@ -41,10 +41,10 @@ async def main():
         input_coroutine = controller.update_inputs()
 
         # Check if arduino or canbus are unplugged while running
-        if not os.path.exists('/dev/arduino'):
+        if arduino is not None and not os.path.exists('/dev/arduino'):
             print('[main] arduino was unplugged!')
             arduino = None
-        if not os.path.exists('/dev/fdcanusb'):
+        if motors is not None and not os.path.exists('/dev/fdcanusb'):
             print('[main] canbus was unplugged!')
             motors = None
 
