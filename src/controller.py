@@ -6,23 +6,10 @@ import os
 from time import sleep
 import importlib
 
-class ControllerState(IntEnum):
-    DISABLED = 0
-    ENABLED  = 1
-
-class Actions(IntEnum):
-    NONE = 0
-    A = 1
-    B = 2
-    X = 3
-    Y = 4
-
-ACTIVATION_CODE = [Actions.A, Actions.X, Actions.Y, Actions.B]
-SIN_PI_OVER_4 = math.sin(math.pi/4)
 DEADZONE = 0.05
 DEADZONE_INV = 1-DEADZONE
 
-MAX_SPEEDS = [0, 0.5, 0.5, 0.5, 0.5]
+MAX_SPEED = 0.5
 
 # Used as reference
 # https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
@@ -31,10 +18,7 @@ class Controller(object):
     MAX_JOY_VAL = math.pow(2, 15)
 
     def __init__(self):
-        self.activation_index: int = 0
-        self.state: ControllerState = ControllerState.ENABLED
         self.velocity: float = 0.0
-        self.max_speed_index: int = 0
         self.angle: float = math.nan
 
         self.LeftJoystickY = 0
@@ -58,18 +42,13 @@ class Controller(object):
         self.UpDPad = 0
         self.DownDPad = 0
 
-        self._monitor_thread = threading.Thread(target=self._monitor_controller, args=())
-        self._monitor_thread.daemon = True
-        self._monitor_thread.start()
-
-    def _monitor_controller(self):
+    async def update_inputs(self):
         while True:
             events = None
             try:
                 events = inputs.get_gamepad()
-            except Exception as error:
-                print("An error occurred:", type(error).__name__) # An error occurred: NameError
-                print('not connected!')
+            except:
+                print('[update_inputs] not connected!')
                 importlib.reload(inputs)
                 self.velocity = 0
                 self.angle = 0
@@ -117,45 +96,8 @@ class Controller(object):
                 elif event.code == 'BTN_TRIGGER_HAPPY4':
                     self.DownDPad = event.state
 
-            self.update_state()
-            if self.state == ControllerState.ENABLED:
-                self.update_velocity()
-                self.update_angle()
-                self.update_max_speed()
-            else:
-                self.velocity = 0.0
-                self.angle = math.nan
-                self.max_speed_index = 0
-           
-    def update_state(self):
-        # Deactivate
-        self.state = ControllerState.ENABLED
-        if False and self.state == ControllerState.ENABLED:
-            self.velocity = 0.0
-            self.angle = 0
-            self.state = ControllerState.DISABLED
-            return
-        if self.state == ControllerState.DISABLED:
-            # Activate
-            recent_action = Actions.NONE # Get Action
-            if self.A == 1:
-                recent_action = Actions.A
-            elif self.B == 1:
-                recent_action = Actions.B
-            elif self.X == 1:
-                recent_action = Actions.X
-            elif self.Y == 1:
-                recent_action = Actions.Y
-
-            if recent_action == Actions.NONE: # No Input
-                return
-            if recent_action == ACTIVATION_CODE[self.activation_index]: # Valid
-                self.activation_index += 1
-                if self.activation_index == len(ACTIVATION_CODE):
-                    self.state = ControllerState.ENABLED
-                    self.activation_index = 0
-            else: # Invalid
-                self.activation_index = 0
+            self.update_velocity()
+            self.update_angle()
 
     def update_velocity(self):
         # Equation https://www.desmos.com/calculator/721p4tkigr
@@ -165,7 +107,14 @@ class Controller(object):
         # Keeps joystick in 'square' zone
         sign = abs(self.LeftJoystickY)/self.LeftJoystickY
         vel = (self.LeftJoystickY-DEADZONE*sign) / (DEADZONE_INV)
-        self.velocity = max(-1, min(1, vel))
+
+        speed_multiplier = MAX_SPEED
+        if self.LeftTrigger:
+            speed_multiplier *= 2
+        if self.LeftBumper:
+            speed_multiplier *= 0.5
+
+        self.velocity = max(-1, min(1, vel)) * speed_multiplier
 
     def update_angle(self):
         # Equation https://www.desmos.com/calculator/721p4tkigr
@@ -176,19 +125,9 @@ class Controller(object):
         # Keeps joystick in 'square' zone
         sign = abs(self.RightJoystickX)/self.RightJoystickX
         vel = (self.RightJoystickX - DEADZONE*sign) / (DEADZONE_INV)
-        self.angle = max(-1, min(1, vel))
-
-    def update_max_speed(self):
-        self.max_speed_index = 4
-        if self.LeftDPad == 1:
-            print('LEFT')
-            # self.max_speed_index = 1
-        elif self.DownDPad == 1:
-            print('DOWN')
-            # self.max_speed_index = 2
-        elif self.RightDPad == 1:
-            print('RIGHT')
-            # self.max_speed_index = 3
-        elif self.UpDPad == 1:
-            print('UP')
-            # self.max_speed_index = 4
+        angle_multiplier = 1
+        if self.RightTrigger:
+            angle_multiplier *= 2
+        if self.RightBumper:
+            angle_multiplier *= 0.5
+        self.angle = max(-1, min(1, vel))*angle_multiplier
