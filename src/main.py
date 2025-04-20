@@ -28,7 +28,7 @@ def get_velocity_and_radius(controller: Controller) -> tuple[float, float]:
     max_speed = MAX_SPEEDS[controller.max_speed_index]
 
     velocity = controller.velocity * max_speed
-    
+
     return velocity, radius
 
 async def main():
@@ -42,7 +42,6 @@ async def main():
         # Check if arduino or canbus are unplugged while running
         if not os.path.exists('/dev/arduino'):
             print('[main] arduino was unplugged!')
-            arduino.close()
             arduino = None
         if not os.path.exists('/dev/fdcanusb'):
             print('[main] canbus was unplugged!')
@@ -58,7 +57,7 @@ async def main():
 
         # If arduino not plugged in program will continue to run until they are plugged in.
         if arduino is None:
-            arduino = await init_servos
+            arduino = await init_servos()
         else:
             await update_servos(controller.angle, arduino)
 

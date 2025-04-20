@@ -162,18 +162,18 @@ class Controller(object):
             return
         # Keeps joystick in 'square' zone
         sign = abs(self.LeftJoystickY)/self.LeftJoystickY
-        vel = (self.LeftJoystickY-DEADZONE*sign) / (SIN_PI_OVER_4*DEADZONE_INV)
+        vel = (self.LeftJoystickY-DEADZONE*sign) / (DEADZONE_INV)
         self.velocity = max(-1, min(1, vel))
 
     def update_angle(self):
         # Equation https://www.desmos.com/calculator/721p4tkigr
         
-        if abs(self.LeftJoystickX) < DEADZONE:
+        if abs(self.RightJoystickX) < DEADZONE:
             self.angle = 0.0
             return
         # Keeps joystick in 'square' zone
-        sign = abs(self.LeftJoystickX)/self.LeftJoystickX
-        vel = (self.LeftJoystickX - DEADZONE*sign) / (SIN_PI_OVER_4*DEADZONE_INV)
+        sign = abs(self.RightJoystickX)/self.RightJoystickX
+        vel = (self.RightJoystickX - DEADZONE*sign) / (DEADZONE_INV)
         self.angle = max(-1, min(1, vel))
 
     def update_max_speed(self):
