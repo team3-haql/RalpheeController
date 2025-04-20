@@ -42,63 +42,65 @@ class Controller(object):
         self.UpDPad = 0
         self.DownDPad = 0
 
-    async def update_inputs(self):
-        while True:
-            events = None
-            try:
-                events = inputs.get_gamepad()
-            except:
-                print('[update_inputs] not connected!')
-                importlib.reload(inputs)
-                self.velocity = 0
-                self.angle = 0
-                sleep(1)
-                continue
-            for event in events:
-                if event.code == 'ABS_Y':
-                    self.LeftJoystickY = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_X':
-                    self.LeftJoystickX = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RY':
-                    self.RightJoystickY = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_RX':
-                    self.RightJoystickX = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
-                elif event.code == 'ABS_Z':
-                    self.LeftTrigger = event.state / Controller.MAX_TRIG_VAL # normalize between 0 and 1
-                elif event.code == 'ABS_RZ':
-                    self.RightTrigger = event.state / Controller.MAX_TRIG_VAL # normalize between 0 and 1
-                elif event.code == 'BTN_TL':
-                    self.LeftBumper = event.state
-                elif event.code == 'BTN_TR':
-                    self.RightBumper = event.state
-                elif event.code == 'BTN_SOUTH':
-                    self.A = event.state
-                elif event.code == 'BTN_NORTH':
-                    self.Y = event.state #previously switched with X
-                elif event.code == 'BTN_WEST':
-                    self.X = event.state #previously switched with Y
-                elif event.code == 'BTN_EAST':
-                    self.B = event.state
-                elif event.code == 'BTN_THUMBL':
-                    self.LeftThumb = event.state
-                elif event.code == 'BTN_THUMBR':
-                    self.RightThumb = event.state
-                elif event.code == 'BTN_SELECT':
-                    self.Back = event.state
-                elif event.code == 'BTN_START':
-                    self.Start = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY1':
-                    self.LeftDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY2':
-                    self.RightDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY3':
-                    self.UpDPad = event.state
-                elif event.code == 'BTN_TRIGGER_HAPPY4':
-                    self.DownDPad = event.state
+    async def update(self):
+        events = None
+        try:
+            events = inputs.get_gamepad()
+        except:
+            print('[update_inputs] not connected!')
+            importlib.reload(inputs)
+            self.velocity = 0
+            self.angle = 0
+            sleep(1)
+            return
+        
+        self.update_inputs(events)
+        self.update_velocity()
+        self.update_angle()
 
-            self.update_velocity()
-            self.update_angle()
-
+    def update_inputs(self, events):
+        for event in events:
+            if event.code == 'ABS_Y':
+                self.LeftJoystickY = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
+            elif event.code == 'ABS_X':
+                self.LeftJoystickX = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
+            elif event.code == 'ABS_RY':
+                self.RightJoystickY = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
+            elif event.code == 'ABS_RX':
+                self.RightJoystickX = event.state / Controller.MAX_JOY_VAL # normalize between -1 and 1
+            elif event.code == 'ABS_Z':
+                self.LeftTrigger = event.state / Controller.MAX_TRIG_VAL # normalize between 0 and 1
+            elif event.code == 'ABS_RZ':
+                self.RightTrigger = event.state / Controller.MAX_TRIG_VAL # normalize between 0 and 1
+            elif event.code == 'BTN_TL':
+                self.LeftBumper = event.state
+            elif event.code == 'BTN_TR':
+                self.RightBumper = event.state
+            elif event.code == 'BTN_SOUTH':
+                self.A = event.state
+            elif event.code == 'BTN_NORTH':
+                self.Y = event.state #previously switched with X
+            elif event.code == 'BTN_WEST':
+                self.X = event.state #previously switched with Y
+            elif event.code == 'BTN_EAST':
+                self.B = event.state
+            elif event.code == 'BTN_THUMBL':
+                self.LeftThumb = event.state
+            elif event.code == 'BTN_THUMBR':
+                self.RightThumb = event.state
+            elif event.code == 'BTN_SELECT':
+                self.Back = event.state
+            elif event.code == 'BTN_START':
+                self.Start = event.state
+            elif event.code == 'BTN_TRIGGER_HAPPY1':
+                self.LeftDPad = event.state
+            elif event.code == 'BTN_TRIGGER_HAPPY2':
+                self.RightDPad = event.state
+            elif event.code == 'BTN_TRIGGER_HAPPY3':
+                self.UpDPad = event.state
+            elif event.code == 'BTN_TRIGGER_HAPPY4':
+                self.DownDPad = event.state
+                
     def update_velocity(self):
         # Equation https://www.desmos.com/calculator/721p4tkigr
         if abs(self.LeftJoystickY) < DEADZONE:
