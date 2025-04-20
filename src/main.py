@@ -3,6 +3,7 @@ from servo_control import init_servos, update_servos
 from controller import Controller, MAX_SPEEDS
 import asyncio
 import math
+import os.path
 
 WHEEL_BASE  = 0.6858
 TRACK_WIDTH = 0.5969
@@ -19,16 +20,47 @@ def inverse_lerp_angle(angle: float) -> float:
     clamped_angle = max(min(angle, MAX_ANGLE), MIN_ANGLE)
     return (2.0*(clamped_angle - MIN_ANGLE)/(MAX_ANGLE - MIN_ANGLE)) - 1.0
 
+def get_velocity_and_radius(controller: Controller) -> tuple[float, float]:
+    angle_interpolated = inverse_lerp_angle(controller.angle)
+
+    denominator = math.tan(angle_interpolated) * (TRACK_WIDTH/2)
+    radius = WHEEL_BASE/denominator
+    max_speed = MAX_SPEEDS[controller.max_speed_index]
+
+    velocity = controller.velocity * max_speed
+    
+    return velocity, radius
+
 async def main():
+    # Initialize controller
     controller = Controller()
-    controllers = await init_motors()
-    # arduino = await init_servos()
+    # Initialize motors and arduino
+    motors  = await init_motors()
+    arduino = await init_servos()
 
     while True:
-        radius: float = WHEEL_BASE/(math.tan(inverse_lerp_angle(controller.angle)) * (TRACK_WIDTH/2))
-        velocity: float = controller.velocity*MAX_SPEEDS[controller.max_speed_index]
-        await update_motors(velocity, radius, controllers)
-        # await update_servos(controller, arduino)
+        # Check if arduino or canbus are unplugged while running
+        if not os.path.exists('/dev/arduino'):
+            print('[main] arduino was unplugged!')
+            arduino.close()
+            arduino = None
+        if not os.path.exists('/dev/fdcanusb'):
+            print('[main] canbus was unplugged!')
+            motors = None
+        
+        # If motors not plugged in program will continue to run until they are plugged in.
+        if motors is None:
+            motors = await init_motors()
+        else:
+            # Calculate velocity, and radius.
+            velocity, radius = get_velocity_and_radius(controller)
+            await update_motors(velocity, radius, motors)
+
+        # If arduino not plugged in program will continue to run until they are plugged in.
+        if arduino is None:
+            arduino = await init_servos
+        else:
+            await update_servos(controller.angle, arduino)
 
 if __name__ == '__main__':
     asyncio.run(main())

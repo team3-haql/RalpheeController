@@ -6,8 +6,10 @@ import numpy as np
 
 # Can bus id, bisit mjbots moteus repo for more info: https://github.com/mjbots/moteus
 # center motor id should be in center.
-LEFT_MOTOR_IDS  = [0, 5, 2]
-RIGHT_MOTOR_IDS = [1, 4, 3]
+# 1 5 3
+# 0 3
+LEFT_MOTOR_IDS  = [2, 5, 3]
+RIGHT_MOTOR_IDS = [0, 4, 1]
 
 # [0] = Left Non Center
 # [1] = Left Center
@@ -37,7 +39,7 @@ def get_motor_radiuses(radius: float) -> np.ndarray[float]:
 
     return radiuses
 
-async def init_motors() -> list[list[moteus.Controller]]:
+async def init_motors() -> list[list[moteus.Controller]] | None:
     """
         Initializes moteus controllers!
         Return:
@@ -49,7 +51,8 @@ async def init_motors() -> list[list[moteus.Controller]]:
     # Without this step the program will get stuck at 'set_stop' on repeat runs.
     dev = usb.core.find(idVendor=0x0483, idProduct=0x5740)
     if dev is None:
-        raise ValueError('Device not found')
+        print('[init_motors] plug in motors!')
+        return None
 
     dev.reset()
 
