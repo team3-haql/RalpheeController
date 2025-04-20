@@ -102,7 +102,7 @@ class Controller(object):
                 self.DownDPad = event.state
 
     def update_velocity(self):
-        # Equation https://www.desmos.com/calculator/721p4tkigr
+        # Equation https://www.desmos.com/calculator/hmsh6km1tl
         if abs(self.LeftJoystickY) < DEADZONE:
             self.velocity = 0.0
             return
@@ -119,7 +119,7 @@ class Controller(object):
         self.velocity = max(-1, min(1, vel)) * speed_multiplier
 
     def update_angle(self):
-        # Equation https://www.desmos.com/calculator/721p4tkigr
+        # Equation https://www.desmos.com/calculator/hmsh6km1tl
         
         if abs(self.RightJoystickX) < DEADZONE:
             self.angle = 0.0
