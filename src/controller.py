@@ -100,7 +100,7 @@ class Controller(object):
                 self.UpDPad = event.state
             elif event.code == 'BTN_TRIGGER_HAPPY4':
                 self.DownDPad = event.state
-                
+
     def update_velocity(self):
         # Equation https://www.desmos.com/calculator/721p4tkigr
         if abs(self.LeftJoystickY) < DEADZONE:
@@ -126,10 +126,10 @@ class Controller(object):
             return
         # Keeps joystick in 'square' zone
         sign = abs(self.RightJoystickX)/self.RightJoystickX
-        vel = (self.RightJoystickX - DEADZONE*sign) / (DEADZONE_INV)
-        angle_multiplier = 1
+        angle = (self.RightJoystickX - DEADZONE*sign) / (DEADZONE_INV)
+        angle_multiplier = 0.75
         if self.RightTrigger:
-            angle_multiplier *= 2
+            angle_multiplier = 1
         if self.RightBumper:
-            angle_multiplier *= 0.5
-        self.angle = max(-1, min(1, vel))*angle_multiplier
+            angle_multiplier = 0.5
+        self.angle = max(-1, min(1, angle*angle_multiplier))
