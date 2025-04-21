@@ -42,21 +42,26 @@ class Controller(object):
         self.UpDPad = 0
         self.DownDPad = 0
 
-    async def update(self):
-        events = None
-        try:
-            events = inputs.get_gamepad()
-        except:
-            print('[update_inputs] not connected!')
-            importlib.reload(inputs)
-            self.velocity = 0
-            self.angle = 0
-            sleep(1)
-            return
-        
-        self.update_inputs(events)
-        self.update_velocity()
-        self.update_angle()
+        self._monitor_thread = threading.Thread(target=self.update, args=())
+        self._monitor_thread.daemon = True
+        self._monitor_thread.start()
+
+    def update(self):
+        while True:
+            events = None
+            try:
+                events = inputs.get_gamepad()
+            except:
+                print('[update_inputs] not connected!')
+                importlib.reload(inputs)
+                self.velocity = 0
+                self.angle = 0
+                sleep(1)
+                return
+            
+            self.update_inputs(events)
+            self.update_velocity()
+            self.update_angle()
 
     def update_inputs(self, events):
         for event in events:

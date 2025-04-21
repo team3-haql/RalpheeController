@@ -1,6 +1,6 @@
 from motor_control import init_motors, update_motors
 from servo_control import init_servos, update_servos
-from controller import Controller, MAX_SPEEDS
+from controller import Controller
 import asyncio
 import math
 import os.path
@@ -37,46 +37,10 @@ async def main():
     arduino = await init_servos()
 
     while True:
-        # Update controller
-        input_coroutine = controller.update_inputs()
-
-        # Check if arduino or canbus are unplugged while running
-        if arduino is not None and not os.path.exists('/dev/arduino'):
-            print('[main] arduino was unplugged!')
-            arduino = None
-        if motors is not None and not os.path.exists('/dev/fdcanusb'):
-            print('[main] canbus was unplugged!')
-            motors = None
-
-        # Wait for input to be complete before continuing
-        await input_coroutine
-
-        motor_coroutine, arduino_coroutine = None, None
-        
-        # If motors not plugged in program will continue to run until they are plugged in.
-        if motors is None:
-            motor_coroutine = init_motors()
-        else:
-            # Calculate velocity, and radius.
-            velocity, radius = get_velocity_and_radius(controller)
-            motor_coroutine = update_motors(velocity, radius, motors)
-
-        # If arduino not plugged in program will continue to run until they are plugged in.
-        if arduino is None:
-            arduino_coroutine = init_servos()
-        else:
-            arduino_coroutine = update_servos(controller.angle, arduino)
-
-        # gather motor coroutine
-        if motors is None:
-            motors = await motor_coroutine
-        else:
-            await motor_coroutine
-        # gather arduino coroutine
-        if arduino is None:
-            arduino = await arduino_coroutine
-        else:
-            await arduino_coroutine
+        # Calculate velocity, and radius.
+        velocity, radius = get_velocity_and_radius(controller)
+        await update_motors(velocity, radius, motors)
+        await update_servos(controller.angle, arduino)
 
 if __name__ == '__main__':
     asyncio.run(main())
