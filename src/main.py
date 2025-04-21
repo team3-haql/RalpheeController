@@ -4,6 +4,7 @@ from controller import Controller
 import asyncio
 import math
 import os.path
+import time
 
 WHEEL_BASE  = 0.6858
 TRACK_WIDTH = 0.5969
@@ -27,7 +28,10 @@ def get_velocity_and_radius(controller: Controller) -> tuple[float, float]:
     angle_interpolated = lerp_angle(controller.angle)
     denominator = math.tan(angle_interpolated)
     offset = TRACK_WIDTH/2 if controller.angle >= 0 else -TRACK_WIDTH/2
-    radius = (WHEEL_BASE/denominator) + offset
+    if denominator != 0:
+        radius = (WHEEL_BASE/denominator) + offset
+    else:
+        radius = math.inf
     velocity = controller.velocity
     return velocity, radius
 
@@ -39,6 +43,8 @@ async def main():
     arduino = await init_servos()
 
     while True:
+        if time.time() - controller.last_update_time >= 10.0:
+            raise Exception("Controller thread probably crashed. Restarting...")
         # Calculate velocity, and radius.
         velocity, radius = get_velocity_and_radius(controller)
         await update_motors(velocity, radius, motors)

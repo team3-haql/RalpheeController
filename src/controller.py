@@ -3,7 +3,7 @@ import threading
 import math
 from enum import IntEnum
 import os
-from time import sleep
+from time import sleep, time
 import importlib
 
 DEADZONE = 0.025
@@ -42,12 +42,15 @@ class Controller(object):
         self.UpDPad = 0
         self.DownDPad = 0
 
+        self.last_update_time = time()
+
         self._monitor_thread = threading.Thread(target=self.update, args=())
         self._monitor_thread.daemon = True
         self._monitor_thread.start()
 
     def update(self):
         while True:
+            self.last_update_time = time()
             events = None
             try:
                 events = inputs.get_gamepad()
@@ -112,7 +115,10 @@ class Controller(object):
             self.velocity = 0.0
             return
         # Keeps joystick in 'square' zone
-        sign = abs(self.LeftJoystickY)/self.LeftJoystickY
+        if self.LeftJoystickY != 0.0:
+            sign = abs(self.LeftJoystickY)/self.LeftJoystickY
+        else:
+            sign = 1.0
         vel = (self.LeftJoystickY-DEADZONE*sign) / (DEADZONE_INV)
 
         speed_multiplier = MAX_SPEED
@@ -130,7 +136,10 @@ class Controller(object):
             self.angle = 0.0
             return
         # Keeps joystick in 'square' zone
-        sign = abs(self.RightJoystickX)/self.RightJoystickX
+        if self.RightJoystickX != 0.0:
+            sign = abs(self.RightJoystickX)/self.RightJoystickX
+        else:
+            sign = 1.0
         angle = (self.RightJoystickX - DEADZONE*sign) / (DEADZONE_INV)
         angle_multiplier = 0.75
         if self.RightTrigger:

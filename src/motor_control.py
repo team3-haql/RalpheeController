@@ -39,7 +39,7 @@ def get_motor_radiuses(radius: float) -> np.ndarray[float]:
 
     return radiuses
 
-async def init_motors() -> list[list[moteus.Controller]] | None:
+async def init_motors() -> list[list[moteus.Controller]]:
     """
         Initializes moteus controllers!
         Return:
@@ -51,8 +51,7 @@ async def init_motors() -> list[list[moteus.Controller]] | None:
     # Without this step the program will get stuck at 'set_stop' on repeat runs.
     dev = usb.core.find(idVendor=0x0483, idProduct=0x5740)
     if dev is None:
-        print('[init_motors] plug in motors!')
-        return None
+        raise Exception('[init_motors] plug in motors!')
 
     dev.reset()
 
@@ -116,7 +115,7 @@ async def update_motors(velocity: float, radius: float, controller_groups: list[
         v = right_velocity if i != 1 else right_center_velocity
         coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=1.0))
 
-    print(f'[update_motors] lv: {left_velocity}, lcv: {left_center_velocity}, rv: {right_velocity}, rcv: {right_center_velocity}')
+    # print(f'[update_motors] lv: {left_velocity}, lcv: {left_center_velocity}, rv: {right_velocity}, rcv: {right_center_velocity}')
 
     # Await coroutines
     for coroutine in coroutines:

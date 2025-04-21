@@ -2,12 +2,11 @@ import serial
 import time
 import os.path
 
-async def init_servos() -> serial.Serial | None:
+async def init_servos() -> serial.Serial:
     print('[init_servos] create arduino object')
     # Check for existence of file
     if not os.path.exists('/dev/arduino'):
-        print('[init_servos] arduino not plugged in!')
-        return None
+        raise Exception('[init_servos] arduino not plugged in!')
     
     # Creates arduino object
     arduino = serial.Serial('/dev/arduino', 9600)
@@ -24,4 +23,4 @@ async def init_servos() -> serial.Serial | None:
 
 async def update_servos(angle: float, arduino: serial.Serial):
     arduino.write((str(angle) + '\r').encode())
-    print(f'[update_servos] t: {angle}')
+    # print(f'[update_servos] t: {angle}')
