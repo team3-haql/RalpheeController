@@ -96,10 +96,10 @@ async def update_motors(velocity: float, radius: float, controller_groups: list[
     radiuses = get_motor_radiuses(radius) / radius
 
     # Gets the velocity for both sides.
-    left_velocity         =  velocity*abs(radiuses[0])
-    left_center_velocity  =  velocity*abs(radiuses[1])
-    right_velocity        = -velocity*abs(radiuses[2])
-    right_center_velocity = -velocity*abs(radiuses[3])
+    left_velocity         =  velocity#*abs(radiuses[0])
+    left_center_velocity  =  velocity#*abs(radiuses[1])
+    right_velocity        = -velocity#*abs(radiuses[2])
+    right_center_velocity = -velocity#*abs(radiuses[3])
 
     LEFT_SIDE_INDEX  = 0
     RIGHT_SIDE_INDEX = 1

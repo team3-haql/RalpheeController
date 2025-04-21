@@ -24,8 +24,9 @@ def get_velocity_and_radius(controller: Controller) -> tuple[float, float]:
     global WHEEL_BASE, TRACK_WIDTH
 
     angle_interpolated = inverse_lerp_angle(controller.angle)
-    denominator = math.tan(angle_interpolated) * (TRACK_WIDTH/2)
-    radius = WHEEL_BASE/denominator
+    denominator = math.tan(angle_interpolated)
+    offset = TRACK_WIDTH/2 if controller.angle >= 0 else -TRACK_WIDTH/2
+    radius = (WHEEL_BASE/denominator) + offset
     velocity = controller.velocity
     return velocity, radius
 
