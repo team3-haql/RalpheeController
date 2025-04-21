@@ -82,7 +82,7 @@ async def init_motors() -> list[list[moteus.Controller]] | None:
 
 async def update_motors(velocity: float, radius: float, controller_groups: list[list[moteus.Controller]]):
     """
-        Updates motor velocities.
+        Updates motor velocities. https://www.desmos.com/calculator/pwxu4jlu2f
         Args:
             velocity:
                 Speed that the rover itself will travel at.
@@ -93,13 +93,16 @@ async def update_motors(velocity: float, radius: float, controller_groups: list[
     """
     coroutines = []
 
-    radiuses = get_motor_radiuses(radius) / radius
+    if math.isfinite(radius):
+        radiuses = get_motor_radiuses(radius) / radius
+    else:
+        radiuses = np.ones(4)
 
     # Gets the velocity for both sides.
-    left_velocity         =  velocity#*abs(radiuses[0])
-    left_center_velocity  =  velocity#*abs(radiuses[1])
-    right_velocity        = -velocity#*abs(radiuses[2])
-    right_center_velocity = -velocity#*abs(radiuses[3])
+    left_velocity         =  velocity*abs(radiuses[0])
+    left_center_velocity  =  velocity*abs(radiuses[1])
+    right_velocity        = -velocity*abs(radiuses[2])
+    right_center_velocity = -velocity*abs(radiuses[3])
 
     LEFT_SIDE_INDEX  = 0
     RIGHT_SIDE_INDEX = 1

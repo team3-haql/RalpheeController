@@ -8,22 +8,23 @@ import os.path
 WHEEL_BASE  = 0.6858
 TRACK_WIDTH = 0.5969
 
-MAX_ANGLE = 0.75 * math.pi
-MIN_ANGLE = 0.25 * math.pi
+MAX_ANGLE = 0.25 * math.pi
+MIN_ANGLE = -0.25 * math.pi
 
-def inverse_lerp_angle(angle: float) -> float:
+def lerp_angle(angle: float) -> float:
     """
-        Translates angle to angle between -1 and 1
+        Translates angle to 1, -1
     """
     global MIN_ANGLE, MAX_ANGLE
 
-    clamped_angle = max(min(angle, MAX_ANGLE), MIN_ANGLE)
-    return (2.0*(clamped_angle - MIN_ANGLE)/(MAX_ANGLE - MIN_ANGLE)) - 1.0
+    clamped_angle = max(min(angle, 1), -1)
+    translated_angle = (clamped_angle + 1.0)/2.0
+    return MIN_ANGLE + translated_angle*(MAX_ANGLE-MIN_ANGLE)
 
 def get_velocity_and_radius(controller: Controller) -> tuple[float, float]:
     global WHEEL_BASE, TRACK_WIDTH
 
-    angle_interpolated = inverse_lerp_angle(controller.angle)
+    angle_interpolated = lerp_angle(controller.angle)
     denominator = math.tan(angle_interpolated)
     offset = TRACK_WIDTH/2 if controller.angle >= 0 else -TRACK_WIDTH/2
     radius = (WHEEL_BASE/denominator) + offset
