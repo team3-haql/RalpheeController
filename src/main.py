@@ -43,9 +43,10 @@ async def main():
     arduino = await init_servos()
 
     while True:
-        if time.time() - controller.last_update_time >= 10.0:
-            raise Exception("Controller thread probably crashed. Restarting...")
+        # if time.time() - controller.last_update_time >= 10.0:
+        #     raise Exception("Controller thread probably crashed. Restarting...")
         # Calculate velocity, and radius.
+        print(controller.velocity)
         velocity, radius = get_velocity_and_radius(controller)
         await update_motors(velocity, radius, motors)
         await update_servos(controller.angle, arduino)

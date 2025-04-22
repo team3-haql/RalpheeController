@@ -60,7 +60,7 @@ class Controller(object):
                 self.velocity = 0
                 self.angle = 0
                 sleep(1)
-                return
+                continue
             
             self.update_inputs(events)
             self.update_velocity()
