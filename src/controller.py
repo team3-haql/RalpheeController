@@ -65,8 +65,8 @@ class Controller(object):
             self.update_inputs(events)
             if self.B and self.A and self.X and self.Y:
                 print('shutdown!')
-                os.system("shutdown /s /t 1") 
-            self.update_velocity()
+                os.system("sudo shutdown") 
+            self.update_velocity()  
             self.update_angle()
 
     def update_inputs(self, events):
