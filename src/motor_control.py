@@ -109,11 +109,11 @@ async def update_motors(velocity: float, radius: float, controller_groups: list[
     # Start coroutines
     for i, c in enumerate(controller_groups[LEFT_SIDE_INDEX]):
         v = left_velocity if i != 1 else left_center_velocity
-        coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=1.0))
+        coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=10.0))
 
     for i, c in enumerate(controller_groups[RIGHT_SIDE_INDEX]):
         v = right_velocity if i != 1 else right_center_velocity
-        coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=1.0))
+        coroutines.append(c.set_position(position=math.nan, velocity=v, query=True, watchdog_timeout=10.0))
 
     # print(f'[update_motors] lv: {left_velocity}, lcv: {left_center_velocity}, rv: {right_velocity}, rcv: {right_center_velocity}')
 

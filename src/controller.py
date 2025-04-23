@@ -9,7 +9,7 @@ import importlib
 DEADZONE = 0.025
 DEADZONE_INV = 1-DEADZONE
 
-MAX_SPEED = 0.5
+MAX_SPEED = 0.75
 
 # Used as reference
 # https://stackoverflow.com/questions/46506850/how-can-i-get-input-from-an-xbox-one-controller-in-python
@@ -63,6 +63,9 @@ class Controller(object):
                 continue
             
             self.update_inputs(events)
+            if self.B and self.A and self.X and self.Y:
+                print('shutdown!')
+                os.system("shutdown /s /t 1") 
             self.update_velocity()
             self.update_angle()
 
